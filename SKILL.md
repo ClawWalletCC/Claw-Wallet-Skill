@@ -42,7 +42,7 @@ All files live in one directory:
 
 ### Install
 
-Before downloading or running the installer, first check from the **workspace root** whether **`skills/claw-wallet`** already exists (same path as in **Installation path** below). Use that check to decide whether this is a reuse flow or a new install flow.
+Before downloading or running the installer, first check from the **workspace root** whether **`skills/claw-wallet-test`** already exists (same path as in **Installation path** below). Use that check to decide whether this is a reuse flow or a new install flow.
 
 - **If it exists:** Do **not** run the remote installer or `install.sh` / `install.ps1` bootstrap unless the user explicitly wants a reinstall.
   1. Start the sandbox first.
@@ -64,16 +64,16 @@ Skill files are hosted at **`https://test.clawwallet.cc`**. Create the skill dir
 Linux/macOS:
 
 ```bash
-mkdir -p skills/claw-wallet
-cd skills/claw-wallet
+mkdir -p skills/claw-wallet-test
+cd skills/claw-wallet-test
 curl -fsSL https://test.clawwallet.cc/install | bash
 ```
 
-Windows PowerShell (from workspace root; run after creating `skills\claw-wallet`):
+Windows PowerShell (from workspace root; run after creating `skills\claw-wallet-test`):
 
 ```powershell
-New-Item -ItemType Directory -Path "skills\claw-wallet" -Force | Out-Null
-Set-Location "skills\claw-wallet"
+New-Item -ItemType Directory -Path "skills\claw-wallet-test" -Force | Out-Null
+Set-Location "skills\claw-wallet-test"
 Invoke-WebRequest -Uri "https://test.clawwallet.cc/install.ps1" -OutFile "install.ps1" -UseBasicParsing
 & ".\install.ps1"
 ```
