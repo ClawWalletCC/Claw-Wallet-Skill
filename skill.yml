@@ -1,0 +1,116 @@
+name: claw-wallet
+display_name: "Claw Wallet"
+version: 0.1.2
+required_env_vars:
+  - CLAY_SANDBOX_URL
+  - CLAY_AGENT_TOKEN
+  - AGENT_TOKEN
+primary_credential: CLAY_AGENT_TOKEN
+required_config_paths:
+  - "skills/claw-wallet/.env.clay"
+  - "skills/claw-wallet/identity.json"
+description: >
+  Local multi-chain wallet skill for AI agents. Installs and operates the Claw Wallet
+  local sandbox, reads local sandbox configuration and identity files for the sandbox
+  URL and bearer token, manages wallet status and signing flows through localhost APIs
+  or wrapper scripts, and guides the user through wallet bind and claim flows. Use when:
+  installing Claw Wallet, starting or restarting the local sandbox, reading wallet
+  addresses or uid, binding a wallet, signing transactions, transferring assets, or
+  managing wallet security policies through the sandbox.
+
+
+permissions:
+  - "exec: git for clone, pull, and upgrade workflows"
+  - "exec: bash/sh scripts for install.sh and claw-wallet.sh"
+  - "exec: powershell for install.ps1 and claw-wallet.ps1 on Windows"
+  - "exec: curl or HTTP client calls to local sandbox endpoints"
+  - "filesystem: read/write within skills/claw-wallet including .env.clay, identity.json, share3.json, sandbox.log, and wrapper scripts"
+  - "network: localhost or CLAY_SANDBOX_URL sandbox HTTP API endpoints"
+  - "network: github.com for repository clone and upgrade flows"
+  - "browser: may instruct the user to open clawwallet.cc claim/bind pages"
+
+metadata:
+  openclaw:
+    always: false
+    os:
+      - darwin
+      - linux
+      - win32
+    primaryEnv: CLAY_AGENT_TOKEN
+    requires:
+      bins:
+        - git
+      anyBins:
+        - bash
+        - sh
+        - pwsh
+        - powershell
+        - curl
+      env:
+        - CLAY_SANDBOX_URL
+    env:
+      - name: CLAY_SANDBOX_URL
+        description: "Base URL for the local Claw Wallet sandbox HTTP server."
+        required: false
+        sensitive: false
+      - name: CLAY_AGENT_TOKEN
+        description: "Primary bearer token used for authenticated sandbox API calls."
+        required: false
+        sensitive: true
+      - name: AGENT_TOKEN
+        description: "Legacy alias for the same sandbox bearer token."
+        required: false
+        sensitive: true
+
+install:
+  type: bootstrap-script
+  source_repo: "https://github.com/ClawWallet/Claw-Wallet-Skill.git"
+  target_path: "skills/claw-wallet"
+  commands:
+    linux_macos:
+      - "mkdir -p skills"
+      - "git clone https://github.com/ClawWallet/Claw-Wallet-Skill.git skills/claw-wallet"
+      - "bash skills/claw-wallet/install.sh"
+    windows:
+      - 'New-Item -ItemType Directory -Path "skills" -Force | Out-Null'
+      - 'git clone https://github.com/ClawWallet/Claw-Wallet-Skill.git "skills/claw-wallet"'
+      - '& "skills/claw-wallet/install.ps1"'
+  notes:
+    - "Installer writes persistent wallet state into the skill workspace."
+    - "Repository code and installer script should be reviewed before execution."
+
+credentials:
+  env_vars:
+    - CLAY_SANDBOX_URL
+    - CLAY_AGENT_TOKEN
+    - AGENT_TOKEN
+  config_paths:
+    - "skills/claw-wallet/.env.clay"
+    - "skills/claw-wallet/identity.json"
+  local_secret_fields:
+    - path: "skills/claw-wallet/.env.clay"
+      fields:
+        - CLAY_SANDBOX_URL
+        - CLAY_AGENT_TOKEN
+        - AGENT_TOKEN
+    - path: "skills/claw-wallet/identity.json"
+      fields:
+        - agent_token
+
+persistence:
+  writes_to_workspace:
+    - "skills/claw-wallet/**"
+  persistent_state_files:
+    - "skills/claw-wallet/.env.clay"
+    - "skills/claw-wallet/identity.json"
+    - "skills/claw-wallet/share3.json"
+  long_lived_processes:
+    - "local sandbox process started via claw-wallet.sh or claw-wallet.ps1"
+  user_confirmation_required_for:
+    - "executing transactions"
+    - "uninstalling the wallet skill"
+
+security_notes:
+  - "Most /api/v1 routes require Authorization: Bearer <token>."
+  - "The skill reads local identity/config files to obtain sandbox connection details."
+  - "The skill may direct the user to https://www.clawwallet.cc/claim/<uid> during wallet binding."
