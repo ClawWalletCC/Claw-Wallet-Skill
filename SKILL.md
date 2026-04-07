@@ -66,7 +66,7 @@ Linux/macOS:
 ```bash
 mkdir -p skills/claw-wallet-test
 cd skills/claw-wallet-test
-curl -fsSL https://test.clawwallet.cc/install | bash
+curl -fsSL https://test.clawwallet.cc/skills/install.sh | bash
 ```
 
 Windows PowerShell (from workspace root; run after creating `skills\claw-wallet-test`):
@@ -74,7 +74,7 @@ Windows PowerShell (from workspace root; run after creating `skills\claw-wallet-
 ```powershell
 New-Item -ItemType Directory -Path "skills\claw-wallet-test" -Force | Out-Null
 Set-Location "skills\claw-wallet-test"
-Invoke-WebRequest -Uri "https://test.clawwallet.cc/install.ps1" -OutFile "install.ps1" -UseBasicParsing
+Invoke-WebRequest -Uri "https://test.clawwallet.cc/skills/install.ps1" -OutFile "install.ps1" -UseBasicParsing
 & ".\install.ps1"
 ```
 
