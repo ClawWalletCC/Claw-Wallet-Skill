@@ -108,12 +108,30 @@ Use this **exact format** to respond to the user after finishing the install:
 
 - After the user says they completed the bind workflow, tell them: You can use this wallet to transfer, receive, and perform complex DeFi interactions.
 
+## Wallet lock routing rules
+
+- Always inspect `GET {CLAY_SANDBOX_URL}/api/v1/wallet/status` before telling the user how to recover a locked wallet.
+- Treat the wallet as **bound / provisioned** when either of these is true:
+  - `relay_user_bound` is `true` and `relay_binding_status` is `valid`
+  - `has_provisioned_share1` is `true`
+  - `status` is `provisioned_waiting_for_pin`
+- For a **bound / provisioned** wallet:
+  - Do **not** ask the user to send their PIN to the agent.
+  - Do **not** ask the user to paste a PIN into chat.
+  - Tell the user to open `https://www.clawwallet.cc/dashboard` and unlock the wallet there.
+- For an **unbound / local** wallet:
+  - If `can_reactivate_locally` is `true`, call `POST {CLAY_SANDBOX_URL}/api/v1/wallet/reactivate`.
+  - Do **not** ask the user for a PIN in this branch.
+  - If reactivation succeeds, continue with the wallet task.
+- If the wallet is unbound and `can_reactivate_locally` is `false`, explain that local reactivation is unavailable in the current sandbox state instead of inventing a PIN flow.
+
 ## Startup rule:
 
 - do not run `clay-sandbox` directly as a long-lived foreground daemon from OpenClaw
 - use `skills/claw-wallet/claw-wallet.sh start` / `skills/claw-wallet/claw-wallet.ps1 start`
 - use `restart` if the process exists but is unhealthy
 - use `serve` only when you intentionally want a foreground process
+- `start` / `restart` will bring the sandbox up, and the sandbox startup path will automatically try one local reactivation for eligible local wallets. If the wallet is bound and requires dashboard unlock, that attempt can fail silently and the wallet stays locked.
 - If the user wants balances or transaction history, call `POST {CLAY_SANDBOX_URL}/api/v1/wallet/refresh` first, or use `refreshAndAssets` for a fresh balance snapshot.
 
 ### Register and bind (website vs agent)
