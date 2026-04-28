@@ -91,11 +91,8 @@ start_sandbox() {
     fi
 
     prepare_log_paths
-    if command -v setsid >/dev/null 2>&1; then
-        setsid "$BINARY_TARGET" serve </dev/null >>"$LOG_PATH" 2>>"$ERR_LOG_PATH" &
-    else
-        nohup "$BINARY_TARGET" serve </dev/null >>"$LOG_PATH" 2>>"$ERR_LOG_PATH" &
-    fi
+    nohup "$BINARY_TARGET" serve </dev/null >>"$LOG_PATH" 2>>"$ERR_LOG_PATH" &
+    
     local proc_pid=$!
     disown "$proc_pid" 2>/dev/null || true
     echo "$proc_pid" >"$PID_PATH"
