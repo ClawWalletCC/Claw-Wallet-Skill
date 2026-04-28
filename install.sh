@@ -103,7 +103,7 @@ start_sandbox() {
     echo "PID file: $PID_PATH"
     echo "Log files: $LOG_PATH , $ERR_LOG_PATH"
     if [ -f "$SCRIPT_DIR/.env.clay" ]; then
-        echo "API auth: if HTTP returns 401, send header Authorization: Bearer <token> using AGENT_TOKEN or CLAY_AGENT_TOKEN from .env.clay (or agent_token in identity.json). See SKILL.md."
+        echo "API auth: if HTTP returns 401, send header Authorization: Bearer <token> using AGENT_TOKEN from .env.clay. See SKILL.md."
     fi
 }
 
@@ -154,10 +154,10 @@ do_wallet_init() {
     echo "Waiting for sandbox and initializing wallet ..."
     for i in $(seq 1 90); do
         CLAY_SANDBOX_URL=""
-        CLAY_AGENT_TOKEN=""
+        AGENT_TOKEN=""
         if [ -f "$SCRIPT_DIR/.env.clay" ]; then
             CLAY_SANDBOX_URL="$(read_env_value '^CLAY_SANDBOX_URL=' "$SCRIPT_DIR/.env.clay")"
-            CLAY_AGENT_TOKEN="$(read_env_value '^(CLAY_AGENT_TOKEN|AGENT_TOKEN)=' "$SCRIPT_DIR/.env.clay")"
+            AGENT_TOKEN="$(read_env_value '^(AGENT_TOKEN)=' "$SCRIPT_DIR/.env.clay")"
         fi
         if [ -z "${CLAY_SANDBOX_URL:-}" ]; then
             REASON=".env.clay (CLAY_SANDBOX_URL)"
@@ -165,9 +165,9 @@ do_wallet_init() {
             REASON="health ok at ${CLAY_SANDBOX_URL}"
         else
             echo "  Calling wallet/init ..."
-            if [ -n "${CLAY_AGENT_TOKEN:-}" ]; then
+            if [ -n "${AGENT_TOKEN:-}" ]; then
                 if init_resp="$(curl -sS -f -X POST "${CLAY_SANDBOX_URL}/api/v1/wallet/init" \
-                    -H "Authorization: Bearer ${CLAY_AGENT_TOKEN}" \
+                    -H "Authorization: Bearer ${AGENT_TOKEN}" \
                     -H "Content-Type: application/json" \
                     -d '{}' 2>/dev/null)"; then
                     if printf '%s' "$init_resp" | grep -qE '"uid"|"status"'; then
@@ -204,7 +204,6 @@ if [ "${CLAW_WALLET_SKIP_INIT:-0}" != "1" ]; then
 fi
 
 # --- Common: final messages ---
-echo "Check .env.clay for CLAY_SANDBOX_URL. CLAY_AGENT_TOKEN / AGENT_TOKEN is optional; when present it is used for protected APIs."
-echo "HTTP clients (curl, agents) must call protected APIs with: Authorization: Bearer <token> only when a token is configured."
-echo "When present, the same value is duplicated in identity.json as agent_token. See SKILL.md section 'HTTP authentication (sandbox)'."
-echo "Sandbox binary refreshed at: $BINARY_TARGET"
+echo "Check .env.clay for CLAY_SANDBOX_URL"
+echo "If you have set an AGENT_TOKEN, then HTTP clients (curl, agents) must call protected APIs with: Authorization: Bearer <same token>."
+echo "Sandbox start success. at: $BINARY_TARGET"
