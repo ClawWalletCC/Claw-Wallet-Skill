@@ -47,13 +47,10 @@ download_file() {
 }
 
 download_skill_bundle() {
-    echo "1Downloading skill files from ${CLAW_WALLET_BASE_URL} ..."
+    echo "Downloading skill files from ${CLAW_WALLET_BASE_URL} ..."
     download_file "${CLAW_WALLET_BASE_URL}/skills/SKILL.md" "$SCRIPT_DIR/SKILL.md"
-    echo "2Downloading skill files from ${CLAW_WALLET_BASE_URL} ..."
     download_file "${CLAW_WALLET_BASE_URL}/skills/install.sh" "$SCRIPT_DIR/install.sh"
-    echo "3Downloading skill files from ${CLAW_WALLET_BASE_URL} ..."
     download_file "${CLAW_WALLET_BASE_URL}/skills/claw-wallet.sh" "$SCRIPT_DIR/claw-wallet.sh"
-    echo "4Downloading skill files from ${CLAW_WALLET_BASE_URL} ..."
     chmod +x "$SCRIPT_DIR/install.sh" "$SCRIPT_DIR/claw-wallet.sh"
 }
 
@@ -213,10 +210,10 @@ print_final_messages() {
 
 install_or_upgrade() {
     local should_init="$1"
-    #stop_sandbox
+    stop_sandbox
     download_skill_bundle
-    #download_binary
-    #start_sandbox
+    download_binary
+    start_sandbox
     if [[ "$should_init" == "1" ]]; then
         do_wallet_init
     fi
